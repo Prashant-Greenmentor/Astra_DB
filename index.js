@@ -50,7 +50,7 @@ const similarIdeas = await fetchSimilarIdeas(inputVector);
 
 const PORT = 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-async function fetchSimilarIdeas(inputVector, limit = 20) {
+async function fetchSimilarIdeas(inputVector, limit = 2) {
   try {
     const collection = await db.collection('co_pilot_guidance_data');
     const cursor = collection.find({}, {
