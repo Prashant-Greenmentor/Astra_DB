@@ -50,7 +50,7 @@ const similarIdeas = await fetchSimilarIdeas(inputVector);
 
 const PORT = 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-async function fetchSimilarIdeas(inputVector, limit = 2) {
+async function fetchSimilarIdeas(inputVector, limit = 3) {
   try {
     const collection = await db.collection('co_pilot_guidance_data');
     const cursor = collection.find({}, {
@@ -83,48 +83,6 @@ async function vectorizeText(text) {
     return response.data[0].embedding;
   } catch (error) {
     console.error('Error vectorizing text:', error);
-    throw error;
-  }
-}
-
-
-// this function created in fronted
- async function generateChatResponse(query) {
-  try {
-    // Vectorize the user's query
-    const inputVector = await vectorizeText(query);
-
-    // Fetch similar ideas from the database
-    const similarIdeas = await fetchSimilarIdeas(inputVector);
-
-    // Format the response using ChatGPT
-    const messages = [
-      {
-        role: 'system',
-        content: 'You are a helpful assistant.',
-      },
-      {
-        role: 'user',
-        content: `User asked: "${query}". Here are the similar ideas fetched from the database:\n\n${similarIdeas
-          .map(
-            (idea, index) =>
-              `${index + 1}. ${idea.idea} (Similarity: ${idea.similarity.toFixed(
-                2
-              )})`
-          )
-          .join('\n')}`,
-      },
-    ];
-
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: messages,
-      max_tokens: 200,
-    });
-
-    return completion.choices[0].message.content;
-  } catch (error) {
-    console.error('Error generating ChatGPT response:', error);
     throw error;
   }
 }
