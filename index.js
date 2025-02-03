@@ -18,24 +18,9 @@ const db = client.db(
     namespace: process.env.ASTRA_NAMESPACE,
   }
 );
-
-app.post('/api/insert', async (req, res) => {
-  try {
-    const collection = await db.collection('co_pilot_guidance_data');
-    await collection.insertOne(req.body);
-    res.status(200).send('Document inserted successfully');
-  } catch (error) {
-    console.error('Error inserting document:', error);
-    res.status(500).send('Error inserting document');
-  }
-});
-
 app.get('/api/find', async (req, res) => {
  
   try {
-    // const collection = await db.collection('co_pilot_guidance_data');
-    // const results = await collection.find({}).toArray();
-// Vectorize the user's query
 const inputVector = await vectorizeText(req.query.inputVector);
 
 // Fetch similar ideas from the database
@@ -62,8 +47,9 @@ async function fetchSimilarIdeas(inputVector, limit = 3) {
     const results = [];
     for await (const doc of cursor) {
       
-      results.push({ idea: doc.content, similarity: doc.$similarity });
+      results.push({ idea: doc.content, similarity: doc.$similarity,fileName:doc.metadata.file_path });
     }
+   
     return results;
   } catch (error) {
     console.error('Error fetching data from Astra DB:', error);
